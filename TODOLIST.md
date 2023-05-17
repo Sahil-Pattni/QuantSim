@@ -1,0 +1,11 @@
+### Project To-Do Items:
+- [X] Define project structure.
+- [ ] Add strategy base class.
+  - [ ] Add a concrete strategy.
+- [ ] Add a backtesting class.
+- [ ] Add a data class.
+- [ ] Develop Streamlit dashboard.
+  - [ ] Live backtesting results.
+- [ ] Integrate with data provider.
+- [ ] Dockerize.
+- [ ] Add Github Actions CI / CD. 
