@@ -1,0 +1,6 @@
+# System generated files
+__pycache__/
+.DS_Store
+
+# Project specific files
+data/
