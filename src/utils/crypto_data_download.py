@@ -34,6 +34,8 @@ class CryptoDataDownload(Data):
         """
         # Convert the date column to a datetime object
         self.data["Date"] = pd.to_datetime(self.data["Date"])
+        # Sort ascending by date
+        self.data.sort_values(by=["Date"], inplace=True)
 
     @override
     def get_data(self, start_date: datetime, end_date: datetime):
