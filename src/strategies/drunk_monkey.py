@@ -33,7 +33,6 @@ class DrunkMonkey(Strategy):
         if random.random() < 0.5:
             # Attempt to buy
             if self.assets["BASE"] > 0:
-                # Randomly choose an amount to buy
                 asset = self.random_asset(exclude_base=True)
                 # Randomly choose an amount to buy
                 amount = (random.random() * self.assets["BASE"]) / datum["Close"]
@@ -42,7 +41,6 @@ class DrunkMonkey(Strategy):
         else:
             # Attempt to sell for each non-base asset
             for ticker, amount in self.assets.items():
-                # Skip the base asset
                 if ticker == "BASE":
                     continue
                 # Randomly choose an amount to sell

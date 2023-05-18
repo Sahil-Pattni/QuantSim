@@ -30,11 +30,9 @@ class CryptoDataDownload(Data):
         """
         Preprocess the data.
         """
-        # Convert the date column to a datetime object
         self.data["Date"] = pd.to_datetime(self.data["Date"])
         # Sort ascending by date
         self.data.sort_values(by=["Date"], inplace=True)
-        # Reset the index
         self.data.reset_index(drop=True, inplace=True)
 
     @override
