@@ -1,3 +1,3 @@
-# [PROJECTNAME]
+# QuantSim
 
-[PROJECTNAME] is a backtesting tool I am currently developing.
+QuantSim is a backtesting tool I am currently developing.
