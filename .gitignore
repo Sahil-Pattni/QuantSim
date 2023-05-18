@@ -4,3 +4,4 @@ __pycache__/
 
 # Project specific files
 data/
+temp/

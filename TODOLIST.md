@@ -7,5 +7,5 @@
 - [ ] Develop Streamlit dashboard.
   - [ ] Live backtesting results.
 - [ ] Integrate with data provider.
-- [ ] Dockerize.
+- [X] Dockerize.
 - [ ] Add Github Actions CI / CD. 
