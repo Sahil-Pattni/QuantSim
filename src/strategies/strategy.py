@@ -90,7 +90,7 @@ class Strategy(ABC):
         self.assets[ticker] -= amount
 
     @abstractmethod
-    def process_data(self, datum):
+    def process_datum(self, datum):
         """
         Process a single datum.
 

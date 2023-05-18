@@ -20,7 +20,7 @@ class DrunkMonkey(Strategy):
         super().__init__(data_source, data_type)
 
     @override
-    def process_data(self, datum):
+    def process_datum(self, datum):
         """
         Process a single datum.
 
