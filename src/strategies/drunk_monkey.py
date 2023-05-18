@@ -29,17 +29,18 @@ class DrunkMonkey(Strategy):
 
         Args:
             datum (any): A single datum from the data.
-
         """
         if random.random() < 0.5:
             # Attempt to buy
             if self.assets["BASE"] > 0:
                 # Randomly choose an amount to buy
-                amount = random.random() * self.assets["BASE"]
+                asset = self.random_asset(exclude_base=True)
+                # Randomly choose an amount to buy
+                amount = (random.random() * self.assets["BASE"]) / datum["Close"]
                 # Place the buy order on the close
-                self.buy("BASE", datum["Close"], amount)
+                self.buy(asset, datum["Close"], amount)
         else:
-            # Attempt to sell
+            # Attempt to sell for each non-base asset
             for ticker, amount in self.assets.items():
                 # Skip the base asset
                 if ticker == "BASE":
@@ -48,3 +49,14 @@ class DrunkMonkey(Strategy):
                 amount = random.random() * amount
                 # Place the sell order on the close
                 self.sell(ticker, datum["Close"], amount)
+
+    def random_asset(self, exclude_base=False):
+        """
+        Get a random asset from the assets dictionary.
+
+        Returns:
+            str: The random asset.
+        """
+        tickers = self.data.get_all_tickers()
+
+        return random.choice(tickers)

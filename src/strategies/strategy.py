@@ -19,14 +19,16 @@ class Strategy(ABC):
     An abstract class for backtesting strategies.
     """
 
-    def __init__(self, data_source: str, data_type: Data, capital: float) -> None:
+    def __init__(
+        self, data_source: str, data_type: Data, capital: float = 100000.0
+    ) -> None:
         """
         Initialize the strategy with data.
 
         Args:
             data_source (str): Data source to be used in the strategy.
             data_type (Data): The type of data to use.
-            capital (float): The starting capital.
+            capital (float, optional): The amount of capital to start with. Defaults to 100000.0.
 
         """
         self.data = data_type(data_source)
@@ -34,8 +36,10 @@ class Strategy(ABC):
         self.assets = {
             "BASE": capital,
         }
+        for ticker in self.data.get_all_tickers():
+            self.assets[ticker] = 0.0
 
-    def execute(self, start_date: datetime, end_date: datetime):
+    def execute(self, start_date: datetime, end_date: datetime) -> None:
         """
         Execute the backtesting strategy.
 
@@ -43,12 +47,20 @@ class Strategy(ABC):
         It defines the logic for executing the strategy on the historical data.
 
         Yields:
-            tuple: A tuple containing the iteration index and the strategy result.
+            int: The index of the current datum.
         """
+        # TODO: Add delay option
         for i, datum in self.data.get_data(start_date, end_date).iterrows():
-            yield i, self.process_data(datum)
+            self.process_datum(datum)
+            yield i
 
-    def buy(self, ticker: str, price: float, amount: float):
+        # Sell all assets at the end
+        for ticker, amount in self.assets.items():
+            if ticker == "BASE":
+                continue
+            self.sell(ticker, datum["Close"], amount)
+
+    def buy(self, ticker: str, price: float, amount: float) -> None:
         """
         Buy a certain amount of a ticker.
 
@@ -69,7 +81,7 @@ class Strategy(ABC):
         self.assets["BASE"] -= base_equivalent
         self.assets[ticker] += amount
 
-    def sell(self, ticker: str, price: float, amount: float):
+    def sell(self, ticker: str, price: float, amount: float) -> None:
         """
         Sell a certain amount of a ticker.
 
@@ -90,7 +102,7 @@ class Strategy(ABC):
         self.assets[ticker] -= amount
 
     @abstractmethod
-    def process_datum(self, datum):
+    def process_datum(self, datum) -> None:
         """
         Process a single datum.
 
@@ -99,8 +111,5 @@ class Strategy(ABC):
 
         Args:
             datum (any): A single datum from the data.
-
-        Returns:
-            any: The result of processing the datum.
         """
         pass

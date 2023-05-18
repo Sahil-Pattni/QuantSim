@@ -38,7 +38,6 @@ class Data(ABC):
         Returns:
             pandas.DataFrame: The data within the specified range.
         """
-        # TODO: Add logic for retrieving data from source.
         pass
 
     @abstractmethod
@@ -49,5 +48,11 @@ class Data(ABC):
         Returns:
             pandas.DataFrame: The preprocessed data.
         """
-        # TODO: Add logic for preprocessing data.
+        pass
+
+    @abstractmethod
+    def get_all_tickers(self):
+        """
+        Get all the unique tickers in the data.
+        """
         pass

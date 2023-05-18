@@ -6,15 +6,12 @@ import datetime
 
 # %%
 PATH = "../data/Binance_BTCUSDT_1h.csv"
-data = CryptoDataDownload(PATH)
+START_DATE = datetime.datetime(2018, 1, 1)
+END_DATE = datetime.datetime(2023, 5, 15)
 
-# %%
-# define start and end dates
-start_date = datetime.datetime(2018, 1, 1)
-end_date = datetime.datetime(2023, 5, 15)
-
-
-# %%
-# Run the strategy
 strategy = DrunkMonkey(data_source=PATH, data_type=CryptoDataDownload)
+gen = strategy.execute(START_DATE, END_DATE)
+for idx in gen:
+    print(f"{idx}: {strategy.assets}")
+
 # %%
