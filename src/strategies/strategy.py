@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
-
 from utils.data import Data
 
 
 class Strategy(ABC):
+    """
+    An abstract class for backtesting strategies.
+    """
+
     @abstractmethod
     def __init__(self, data) -> None:
         """
@@ -41,3 +44,32 @@ class Strategy(ABC):
         Returns:
             any: The result of processing the datum.
         """
+        pass
+
+    @abstractmethod
+    def buy(self, ticker: str, amount: float):
+        """
+        Buy a certain amount of a ticker.
+
+        Args:
+            ticker (str): The ticker to buy.
+            amount (float): The amount to buy.
+
+        Raises:
+            InvalidTradeException: If the trade is invalid.
+        """
+        pass
+
+    @abstractmethod
+    def sell(self, ticker: str, amount: float):
+        """
+        Sell a certain amount of a ticker.
+
+        Args:
+            ticker (str): The ticker to sell.
+            amount (float): The amount to sell.
+
+        Raises:
+            InvalidTradeException: If the trade is invalid.
+        """
+        pass
