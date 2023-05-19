@@ -32,7 +32,7 @@ class Trade:
         Returns:
             str: The string representation of the trade.
         """
-        return f"[{self.time}] {self.action} {self.amount} {self.ticker} @ ${self.price:.2f}"
+        return f"[{self.time}] {self.action} {self.amount:,.3f} {self.ticker:,.3f} @ ${self.price:.3f}"
 
     def to_list(self):
         """
