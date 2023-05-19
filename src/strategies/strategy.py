@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 import datetime
 from enum import Enum
+from typing import List
 from utils.custom_exceptions import InvalidTradeException
 from utils.data import Data
+from utils.trade import Trade
 
 
 class Trades(Enum):
@@ -10,8 +12,8 @@ class Trades(Enum):
     An enum for the types of trades.
     """
 
-    BUY = 0
-    SELL = 1
+    BUY = "BUY"
+    SELL = "SELL"
 
 
 class Strategy(ABC):
@@ -44,7 +46,9 @@ class Strategy(ABC):
             self.assets[ticker] = 0.0
             self.last_value[ticker] = 0.0
 
-    def execute(self, start_date: datetime = None, end_date: datetime = None) -> None:
+    def execute(
+        self, start_date: datetime = None, end_date: datetime = None
+    ) -> List[Trade]:
         """
         Execute the backtesting strategy.
 
@@ -61,8 +65,8 @@ class Strategy(ABC):
         data = self.data.get_data(start_date, end_date)
         n = data.shape[0]
         for i, datum in data.iterrows():
-            self.process_datum(datum)
-            yield i, n
+            trades: List[Trade] = self.process_datum(datum)
+            yield i, n, trades
 
         # Sell all assets at the end
         for ticker, amount in self.assets.items():

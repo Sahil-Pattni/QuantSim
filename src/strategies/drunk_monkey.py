@@ -1,8 +1,10 @@
 import datetime
 import random
+from typing import List
 from typing_extensions import override
 from strategies.strategy import Strategy, Trades
 from utils.data import Data
+from utils.trade import Trade
 
 
 class DrunkMonkey(Strategy):
@@ -24,7 +26,7 @@ class DrunkMonkey(Strategy):
         super().__init__(data_source, data_type, capital)
 
     @override
-    def process_datum(self, datum):
+    def process_datum(self, datum) -> List[Trade]:
         """
         Process a single datum.
 
@@ -33,7 +35,11 @@ class DrunkMonkey(Strategy):
 
         Args:
             datum (any): A single datum from the data.
+
+        Returns:
+            List[Trade]: A list of trades to be executed.
         """
+        trades = []
         # Randomly choose to buy or sell
         if random.random() < 0.5:
             # Attempt to buy
@@ -43,6 +49,15 @@ class DrunkMonkey(Strategy):
                 amount = (random.random() * self.assets["BASE"]) / datum["Close"]
                 # Place the buy order on the close
                 self.buy(asset, datum["Close"], amount)
+                trades.append(
+                    Trade(
+                        ticker=asset,
+                        action=Trades.BUY.value,
+                        price=datum["Close"],
+                        amount=amount,
+                        time=datum["Date"],
+                    )
+                )
         else:
             # Attempt to sell for each non-base asset
             for ticker, amount in self.assets.items():
@@ -52,9 +67,20 @@ class DrunkMonkey(Strategy):
                 amount = random.random() * amount
                 # Place the sell order on the close
                 self.sell(ticker, datum["Close"], amount)
+                trades.append(
+                    Trade(
+                        ticker=ticker,
+                        action=Trades.SELL.value,
+                        price=datum["Close"],
+                        amount=amount,
+                        time=datum["Date"],
+                    )
+                )
 
         # Update the net worth
         super().process_datum(datum)
+
+        return trades
 
     def random_asset(self):
         """
