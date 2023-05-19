@@ -27,16 +27,18 @@ class Data(ABC):
         pass
 
     @abstractmethod
-    def get_data(self, start_date: datetime, end_date: datetime):
+    def get_data(
+        self, start_date: datetime = None, end_date: datetime = None
+    ) -> pd.DataFrame:
         """
-        Retrieve data from the source within the specified range.
+        Get the data within the specified range.
 
         Args:
-            start_date (datetime): The start date of the range.
-            end_date (datetime): The end date of the range.
+            start_date (datetime, optional): The start date of the range. Defaults to None.
+            end_date (datetime, optional): The end date of the range. Defaults to None.
 
         Returns:
-            pandas.DataFrame: The data within the specified range.
+            pandas.DataFrame: The preprocessed data within the specified range.
         """
         pass
 

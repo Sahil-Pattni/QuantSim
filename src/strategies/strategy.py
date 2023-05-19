@@ -32,27 +32,37 @@ class Strategy(ABC):
 
         """
         self.data = data_type(data_source)
+        self.initial_capital = capital
         # Initialize the assets
         self.assets = {
             "BASE": capital,
         }
+        # Last value of the assets
+        self.last_value = {}
+
         for ticker in self.data.get_all_tickers():
             self.assets[ticker] = 0.0
+            self.last_value[ticker] = 0.0
 
-    def execute(self, start_date: datetime, end_date: datetime) -> None:
+    def execute(self, start_date: datetime = None, end_date: datetime = None) -> None:
         """
         Execute the backtesting strategy.
 
         This method should be implemented by some concrete strategy class.
         It defines the logic for executing the strategy on the historical data.
 
+        Args:
+            start_date (datetime, optional): The start date of the backtest. Defaults to None.
+            end_date (datetime, optional): The end date of the backtest. Defaults to None.
+
         Yields:
             int: The index of the current datum.
         """
-        # TODO: Add delay option
-        for i, datum in self.data.get_data(start_date, end_date).iterrows():
+        data = self.data.get_data(start_date, end_date)
+        n = data.shape[0]
+        for i, datum in data.iterrows():
             self.process_datum(datum)
-            yield i
+            yield i, n
 
         # Sell all assets at the end
         for ticker, amount in self.assets.items():
@@ -112,4 +122,28 @@ class Strategy(ABC):
         Args:
             datum (any): A single datum from the data.
         """
-        pass
+        # Update last seen values
+        self.update_last_values(datum)
+
+    def update_last_values(self, datum):
+        ticker = datum["Symbol"]
+        self.last_value[ticker] = datum["Close"]
+
+    def calculate_net_worth(self):
+        """
+        Update the net worth of the strategy.
+
+        Returns:
+            float: The net worth of the strategy so far.
+        """
+        net_worth = 0.0
+        for ticker, amount in self.assets.items():
+            # Base asset
+            if ticker == "BASE":
+                net_worth += amount
+                continue
+            else:
+                # Update the last value of the asset
+                net_worth += amount * self.last_value[ticker]
+
+        return net_worth
