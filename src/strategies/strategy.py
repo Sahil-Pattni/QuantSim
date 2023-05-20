@@ -72,7 +72,7 @@ class Strategy(ABC):
         for ticker, amount in self.assets.items():
             if ticker == "BASE":
                 continue
-            self.sell(ticker, datum["Close"], amount)
+            self.sell(ticker, self.last_value[ticker], amount)
 
     def buy(self, ticker: str, price: float, amount: float) -> None:
         """

@@ -1,5 +1,6 @@
 # %%
 import time
+from typing import List
 import pandas as pd
 from utils.crypto_data_download import CryptoDataDownload
 from strategies import strategy
@@ -7,6 +8,8 @@ from strategies.drunk_monkey import DrunkMonkey
 import datetime
 import streamlit as st
 import matplotlib.pyplot as plt
+
+from utils.trade import Trade
 
 # --- Value Choice Dicts --- #
 strategies = {"Drunk Monkey": DrunkMonkey}
@@ -28,7 +31,6 @@ strategy_name = st.empty()
 progress_bar_placeholder = st.empty()
 net_worth_placeholder = st.empty()
 chart_placeholder = st.empty()
-st.markdown("### Trade History")
 trade_history_placeholder = st.container()
 # --- SIDE BAR --- #
 st.sidebar.title("Strategy Parameters")
@@ -36,6 +38,7 @@ st.sidebar.markdown("### Capital")
 capital = st.sidebar.number_input("Initial Capital (USDT)", value=100000.0)
 strategy_choice = st.sidebar.selectbox("Strategy", ["Drunk Monkey"])
 data_choice = st.sidebar.selectbox("Data", ["Binance BTCUSDT 1h"])
+step = st.sidebar.number_input("Chart Update Frequency", value=500)
 start = st.sidebar.button("Start")
 
 
@@ -88,19 +91,6 @@ def update_chart(data: dict):
         st.pyplot(fig, clear_figure=False)
 
 
-def update_trade_history(trades: list):
-    # TODO: Fix this function, it's too memory intensive
-    """
-    Updates the trade history with the given trades.
-
-    Args:
-        trades (list): The trades to update the history with.
-    """
-    global trade_history_placeholder
-    for trade in trades:
-        trade_history_placeholder.markdown(str(trade))
-
-
 def run_simulation(step=1000):
     """
     Runs the simulation, updating the UI as it goes.
@@ -122,21 +112,21 @@ def run_simulation(step=1000):
         "y": [],
     }
 
+    trades: List[Trade] = []
+
     # Iterate through the strategy
     for idx, n, trade, date in gen:
+        # Update the trade history
+        if trade:
+            trades.extend(trade)
         # Update the progress bar
-        progress_bar_placeholder.progress(idx / n)
-
-        # Update trade history
-        # update_trade_history(trade)
+        with progress_bar_placeholder:
+            st.progress(idx / n)
 
         # Update data
         net_worth: float = strategy.calculate_net_worth()
         data["x"].append(date)
         data["y"].append(net_worth)
-
-        # TODO: Remove i
-        # print(f"progress: {idx:,}/{n:,} =  {idx / n:,.2f}")
 
         # Update the metric
         net_worth_placeholder.metric(
@@ -147,19 +137,21 @@ def run_simulation(step=1000):
 
         # Update plot at every 1000th iteration
         if idx % step != 0:
-            idx += 1
             continue
 
         # Update the chart
         update_chart(data)
 
-        idx += 1
-
     st.success("Simulation Complete")
+
+    with trade_history_placeholder:
+        st.header("Trade History")
+        trades = pd.DataFrame([t.__dict__ for t in trades])
+        st.dataframe(trades, use_container_width=True)
 
 
 if start:
-    run_simulation(step=400)
+    run_simulation(step=step)
 
 
 # %%
