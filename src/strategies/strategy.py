@@ -65,8 +65,8 @@ class Strategy(ABC):
         data = self.data.get_data(start_date, end_date)
         n = data.shape[0]
         for i, datum in data.iterrows():
-            trades: List[Trade] = self.process_datum(datum)
-            yield i, n, trades
+            trades, date = self.process_datum(datum)
+            yield i, n, trades, date
 
         # Sell all assets at the end
         for ticker, amount in self.assets.items():

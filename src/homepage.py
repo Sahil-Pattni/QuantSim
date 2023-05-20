@@ -81,6 +81,7 @@ def update_chart(data: dict):
         ax.set_title("Net Worth")
         ax.set_xlabel("Time")
         ax.set_ylabel("USDT")
+        plt.setp(ax.get_xticklabels(), rotation=45)
         ax.grid("on")
         ax.plot(data["x"], data["y"], color="blue")
         plt.tight_layout()
@@ -100,7 +101,7 @@ def update_trade_history(trades: list):
         trade_history_placeholder.markdown(str(trade))
 
 
-def run_simulation():
+def run_simulation(step=1000):
     """
     Runs the simulation, updating the UI as it goes.
     """
@@ -122,16 +123,16 @@ def run_simulation():
     }
 
     # Iterate through the strategy
-    for idx, n, trade in gen:
+    for idx, n, trade, date in gen:
         # Update the progress bar
         progress_bar_placeholder.progress(idx / n)
 
         # Update trade history
-        update_trade_history(trade)
+        # update_trade_history(trade)
 
         # Update data
         net_worth: float = strategy.calculate_net_worth()
-        data["x"].append(idx)
+        data["x"].append(date)
         data["y"].append(net_worth)
 
         # TODO: Remove i
@@ -145,7 +146,7 @@ def run_simulation():
         )
 
         # Update plot at every 1000th iteration
-        if idx % 1000 != 0:
+        if idx % step != 0:
             idx += 1
             continue
 
@@ -158,7 +159,7 @@ def run_simulation():
 
 
 if start:
-    run_simulation()
+    run_simulation(step=400)
 
 
 # %%

@@ -80,7 +80,7 @@ class DrunkMonkey(Strategy):
         # Update the net worth
         super().process_datum(datum)
 
-        return trades
+        return trades, datum["Date"]
 
     def random_asset(self):
         """
