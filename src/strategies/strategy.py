@@ -35,6 +35,7 @@ class Strategy(ABC):
         """
         self.data = data_type(data_source)
         self.initial_capital = capital
+        self.description = ""
         # Initialize the assets
         self.assets = {
             "BASE": capital,
@@ -45,6 +46,15 @@ class Strategy(ABC):
         for ticker in self.data.get_all_tickers():
             self.assets[ticker] = 0.0
             self.last_value[ticker] = 0.0
+
+    def set_description(self, description: str) -> None:
+        """
+        Set the description of the strategy.
+
+        Args:
+            description (str): The description of the strategy.
+        """
+        self.description = description
 
     def execute(
         self, start_date: datetime = None, end_date: datetime = None

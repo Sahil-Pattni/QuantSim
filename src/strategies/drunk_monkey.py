@@ -24,6 +24,9 @@ class DrunkMonkey(Strategy):
             capital (float, optional): The amount of capital to start with. Defaults to 100000.0.
         """
         super().__init__(data_source, data_type, capital)
+        self.set_description(
+            "Randomly buys and sells. About as reliable as an intoxicated primate."
+        )
 
     @override
     def process_datum(self, datum) -> List[Trade]:

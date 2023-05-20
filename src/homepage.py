@@ -26,10 +26,9 @@ fig, ax = plt.subplots(figsize=(7, 4))
 # --- Streamlit --- #
 st.title("QuantSim Backtester")
 # Empty placeholders
-strategy_header = st.empty()
-strategy_name = st.empty()
+strategy_desc = st.container()
 progress_bar_placeholder = st.empty()
-net_worth_placeholder = st.empty()
+metrics_placeholder = st.empty()
 chart_placeholder = st.empty()
 trade_history_placeholder = st.container()
 # --- SIDE BAR --- #
@@ -46,12 +45,11 @@ def clear_all():
     """
     Clears all placeholders.
     """
-    global trade_history_placeholder
-    strategy_header.empty()
-    strategy_name.empty()
+    global trade_history_placeholder, strategy_desc
     progress_bar_placeholder.empty()
-    net_worth_placeholder.empty()
     chart_placeholder.empty()
+    strategy_desc = st.container()
+    metrics_placeholder = st.empty()
     trade_history_placeholder = st.container()
 
 
@@ -91,6 +89,20 @@ def update_chart(data: dict):
         st.pyplot(fig, clear_figure=False)
 
 
+def update_metrics(net_worth: float, num_sells: int, num_buys: int):
+    # Update the metric
+    with metrics_placeholder.container():
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric(
+            "Net Worth",
+            f"${net_worth:,.2f}",
+            delta=f"{calculate_change(net_worth, capital)*100:,.2f}%",
+        )
+        col2.metric("Number of Buys", f"{num_buys:,}")
+        col3.metric("Number of Sells", f"{num_sells:,}")
+
+
 def run_simulation(step=1000):
     """
     Runs the simulation, updating the UI as it goes.
@@ -105,7 +117,9 @@ def run_simulation(step=1000):
     )
     gen = strategy.execute()
 
-    strategy_name.markdown(f"### Strategy: {strategy_choice}")
+    with strategy_desc:
+        st.markdown(f"### Strategy: {strategy_choice}")
+        st.markdown(strategy.description)
     # Set up chart
     data = {
         "x": [],
@@ -113,27 +127,22 @@ def run_simulation(step=1000):
     }
 
     trades: List[Trade] = []
+    num_buys, num_sells = 0, 0
 
     # Iterate through the strategy
     for idx, n, trade, date in gen:
         # Update the trade history
-        if trade:
-            trades.extend(trade)
-        # Update the progress bar
-        with progress_bar_placeholder:
-            st.progress(idx / n)
+        for t in trade:
+            trades.append(t)
+            if t.action == "BUY":
+                num_buys += 1
+            else:
+                num_sells += 1
 
         # Update data
         net_worth: float = strategy.calculate_net_worth()
         data["x"].append(date)
         data["y"].append(net_worth)
-
-        # Update the metric
-        net_worth_placeholder.metric(
-            "Net Worth",
-            f"${net_worth:,.2f}",
-            delta=f"{calculate_change(net_worth, strategy.initial_capital)*100:,.2f}%",
-        )
 
         # Update plot at every 1000th iteration
         if idx % step != 0:
@@ -141,6 +150,13 @@ def run_simulation(step=1000):
 
         # Update the chart
         update_chart(data)
+
+        # Update metrics
+        update_metrics(net_worth, num_sells, num_buys)
+
+        # Update the progress bar
+        with progress_bar_placeholder:
+            st.progress(idx / n)
 
     st.success("Simulation Complete")
 
